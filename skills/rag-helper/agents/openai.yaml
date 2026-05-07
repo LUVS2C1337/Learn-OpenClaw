@@ -1,0 +1,3 @@
+interface:
+  display_name: "RAG Helper"
+  short_description: "Explain Learn-OpenClaw, RAG, and tool-calling code with retrieval-first Chinese guidance."

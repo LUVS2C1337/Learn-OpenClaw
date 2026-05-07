@@ -1,0 +1,2 @@
+ChatNode 是 Learn-OpenClaw 中负责调用大模型的节点。它接收用户消息，然后调用 LLM，最后把模型回复传给下一个节点。
+OutputNode 负责输出最终结果。

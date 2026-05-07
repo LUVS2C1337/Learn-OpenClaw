@@ -7,39 +7,17 @@ import sys
 from pathlib import Path
 from typing import Any, Tuple
 
-
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from core.llm import call_llm
 from core.node import Node, Flow, shared
-from mcp_client import MCPClient, MCPToolExecutor
-from core.skill_loader import load_skill
+from tools import get_tools, ToolExecutor
 
-
-BASE_SYSTEM_PROMPT = (
-    "你是一个会调用远程 MCP 工具的助手。"
-    "当问题涉及本地知识库、项目文档、已构建的 RAG 资料、Learn-OpenClaw 项目说明、"
-    "ChatNode、OutputNode、chatbot_with_tools 或源码解释时，优先调用 rag_search 工具。"
-    "回答时必须基于工具返回的资料，不要编造。"
+SYSTEM_PROMPT = (
+    "你是一个会调用工具的助手。"
+    "当问题涉及最新信息、模型版本、产品发布时间或事实核验时，优先先调用 search 工具，再基于搜索结果回答。"
+    "若问题是本地文件/代码相关，优先使用 read/grep/find/ls 等本地工具。"
 )
-
-RAG_SKILL_PROMPT = load_skill("rag-helper")
-
-SYSTEM_PROMPT = f"""
-{BASE_SYSTEM_PROMPT}
-
-下面是本地 Skill 指令。当用户问题符合该 Skill 的使用范围时，必须按照这些规则执行：
-
-{RAG_SKILL_PROMPT}
-"""
-
-
-def get_tool_display_name(tool_schema: dict) -> str:
-    """从 LLM tool schema 中取出工具名，用于打印。"""
-    if "function" in tool_schema:
-        return tool_schema["function"].get("name", "unknown")
-
-    return tool_schema.get("name", "unknown")
 
 
 class ChatNode(Node):
@@ -49,12 +27,7 @@ class ChatNode(Node):
         messages = shared["messages"]
         tools = shared["tools"]
 
-        assistant_message = call_llm(
-            messages=messages,
-            tools=tools,
-            system_prompt=SYSTEM_PROMPT,
-        )
-
+        assistant_message = call_llm(messages=messages, tools=tools, system_prompt=SYSTEM_PROMPT)
         messages.append(assistant_message)
 
         if assistant_message.get("tool_calls"):
@@ -75,8 +48,8 @@ class ToolCallNode(Node):
         results = executor.execute_all(tool_calls)
 
         for tc, result in zip(tool_calls, results):
-            print(f"  [MCP Tool] 执行: {tc.name}({tc.arguments})")
-            print(f"  [MCP Tool] 结果: {result.content[:100]}...")
+            print(f"  [Tool] 执行: {tc.name}({tc.arguments})")
+            print(f"  [Tool] 结果: {result.content[:100]}...")
             messages.append(result.to_message())
 
         return "chat", None
@@ -95,29 +68,15 @@ class OutputNode(Node):
 def run_chat() -> None:
     """运行对话循环"""
     print("=" * 60)
-    print("🤖 Chatbot with MCP Tools")
+    print("🤖 Chatbot with Tools")
     print("=" * 60)
-
-    mcp_client = MCPClient("http://127.0.0.1:8000")
-
-    try:
-        mcp_tools = mcp_client.list_tools()
-    except Exception as e:
-        print("❌ 无法连接 MCP Server")
-        print("请先在另一个终端运行：")
-        print("python examples/mcp_rag_server.py")
-        print(f"错误信息: {e}")
-        return
-
-    tool_names = [get_tool_display_name(t) for t in mcp_tools]
-
-    print(f"可用 MCP 工具: {', '.join(tool_names)}")
+    print("可用工具: read, write, edit, bash, grep, find, ls, search")
     print("输入 'quit' 或 'exit' 退出\n")
 
     shared.clear()
     shared["messages"] = []
-    shared["tools"] = mcp_tools
-    shared["tool_executor"] = MCPToolExecutor(mcp_client)
+    shared["tools"] = [t.to_llm_format() for t in get_tools()]
+    shared["tool_executor"] = ToolExecutor()
 
     chat = ChatNode()
     tool_call = ToolCallNode()
@@ -138,7 +97,6 @@ def run_chat() -> None:
             continue
 
         shared["messages"].append({"role": "user", "content": user_input})
-
         flow = Flow(chat)
         flow.run(None)
 

@@ -47,6 +47,7 @@ def get_builtin_tools() -> List[Tool]:
     from .find import find
     from .ls import ls
     from .search import search
+    from .rag_search import rag_search
 
     return [
         Tool(
@@ -153,6 +154,29 @@ def get_builtin_tools() -> List[Tool]:
                 "required": ["query"],
             },
             fn=search,
+        ),
+        Tool(
+            name="rag_search",
+            description=(
+                "Search the local RAG knowledge base built from docs and source code. "
+                "Use this when the user asks about project documents, local code knowledge, "
+                "ChatNode, OutputNode, chatbot_with_tools, RAG docs, or anything that may exist in the local indexed knowledge base."
+            ),
+            parameters={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The question or search query to retrieve relevant local knowledge.",
+                    },
+                    "top_k": {
+                        "type": "integer",
+                        "description": "Number of chunks to retrieve. Default is 4.",
+                    },
+                },
+                "required": ["query"],
+            },
+            fn=rag_search,
         ),
     ]
 

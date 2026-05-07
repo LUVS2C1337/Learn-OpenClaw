@@ -1,20 +1,5 @@
-# macOS
-.DS_Store
-
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.eggs/
-dist/
-build/
 .venv/
-venv/
+__pycache__/
+*.pyc
 .env
-*.egg
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+.DS_Store
