@@ -27,6 +27,7 @@
 | `examples/chatbot/main.py` | 简单对话机器人 |
 | `examples/chatbot_with_tools/main.py` | 带工具调用的 Agent（MCP） |
 | `tools/` | 内置工具集（search, bash, files 等） |
+| `learn_python/` | Python 基础自学材料（不影响项目主代码） |
 
 ## 学习元规则（每次学习必经）
 1. **当前最没把握的事是什么？** — 识别真正的薄弱点（通常不是表面的"没听懂"，而是"能不能自己改代码"）
