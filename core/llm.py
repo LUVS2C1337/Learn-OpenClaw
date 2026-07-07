@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from openai import OpenAI
+
+# 自动加载项目根目录的 .env 文件
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 
 
 def call_llm_simple(prompt: str) -> str:
@@ -15,7 +20,7 @@ def call_llm_simple(prompt: str) -> str:
         base_url=os.environ.get("OPENAI_BASE_URL"),
     )
     response = client.chat.completions.create(
-        model="kimi-k2.5",
+        model="deepseek-chat",
         messages=[{"role": "user", "content": prompt}],
     )
     message = response.choices[0].message
@@ -36,7 +41,7 @@ def call_llm(
         msgs = [{"role": "system", "content": system_prompt}, *msgs]
 
     kwargs: dict[str, Any] = {
-        "model": "kimi-k2.5",
+        "model": "deepseek-chat",
         "messages": msgs,
     }
     if tools:
