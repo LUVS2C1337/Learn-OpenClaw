@@ -55,7 +55,9 @@ uv run search
 - [x] 测试通过 Workflow 示例
 - [x] 理解 Node 核心概念（Node/Flow/>>/- 运算符/action 路由）
 - [x] 学习 Chatbot 示例（Chatbot = Workflow + Loop）
-- [ ] 学习带工具的 Agent 示例
-- [ ] 理解 Tool/MCP/Skill 概念
-- [ ] 理解 Memory 机制（工业级方案）
-- [ ] 理解 Multi-Agent
+- [x] 学习带工具的 Agent 示例（Tool Calling 流程、Tool 定义格式）
+- [x] RAG 已跑通（SiliconFlow + ChromaDB + DeepSeek）
+- [x] Memory 概念（短期+长期记忆压缩）
+- [x] Multi-Agent 已跑通（Agent Team 四人组并行协作）
+- 🎉 全部 5 节学完
+- 🔜 下一步：XingClaw（飞书桥接版 Agent 框架）
