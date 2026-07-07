@@ -10,6 +10,7 @@ dependencies = [
     "fastmcp>=3.0.1",
     "openai>=2.16.0",
     "pyyaml>=6.0.3",
+    "streamlit>=1.59.0",
 ]
 
 [project.scripts]
@@ -17,3 +18,8 @@ chatbot = "examples.chatbot:main"
 workflow = "examples.workflow:main"
 search = "examples.search_agent:main"
 nodes = "examples.node_examples:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
